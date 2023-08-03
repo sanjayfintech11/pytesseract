@@ -17,3 +17,48 @@ steps:
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
   displayName: 'Run a multi-line script'
+  condition: 
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - script: echo Building the application
+      displayName: 'Build'
+
+- stage: Dev
+  jobs:
+  - job: DevJob
+    steps:
+    - script: echo Deploying to Dev environment
+      displayName: 'Deploy to Dev'
+
+- stage: Test
+  jobs:
+  - job: TestJob
+    steps:
+    - script: echo Running tests in Test environment
+      displayName: 'Run tests'
+
+- stage: SIT
+  jobs:
+  - job: SITJob
+    steps:
+    - script: echo Deploying to SIT environment
+      displayName: 'Deploy to SIT'
+
+- stage: Preprod
+  jobs:
+  - job: PreprodJob
+    steps:
+    - script: echo Deploying to Preprod environment
+      displayName: 'Deploy to Preprod'
+
+- stage: Prod
+  jobs:
+  - job: ProdJob
+    steps:
+    - script: echo Deploying to Prod environment
+      displayName: 'Deploy to Prod'
+
