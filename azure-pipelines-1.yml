@@ -1,3 +1,16 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    steps:
+    - script: echo 'Building...'
+
 - stage: DeployToBuildEnv
   jobs:
   - deployment: Deploy
@@ -8,3 +21,12 @@
         deploy:
           steps:
           - script: echo 'Deploying...'
+
+- stage: Test
+  jobs:
+  - job: Test
+    steps:
+    - script: echo 'Testing...'
+
+# Define more stages and jobs as needed...
+
