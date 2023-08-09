@@ -1,32 +1,96 @@
 trigger:
-- main
-
+  branches:
+    include:
+    - main
+    - development
 pool:
-  vmImage: 'ubuntu-latest'
-
+  vmImage: 'windows-latest'
 stages:
 - stage: Build
+  displayName: 'Build Stage'
   jobs:
-  - job: Build
-    steps:
-    - script: echo 'Building...'
-
-- stage: DeployToBuildEnv
-  jobs:
-  - deployment: Deploy
-    displayName: 'Deploy to Build Environment'
+  - deployment: Build
+    displayName: 'Build Deployment'
     environment: 'Build'
     strategy:
       runOnce:
         deploy:
           steps:
-          - script: echo 'Deploying...'
-
-- stage: Test
+          - powershell: |
+              $triggeringUser = "$(Build.RequestedFor)"
+              $allowedUser = "Mohammed.Thoufiq@ITTalentHub100.onmicrosoft.com"
+              if ($triggeringUser -eq $allowedUser) {
+                  Write-Host "User is allowed to skip approval."
+                  Write-Host "##vso[task.setvariable variable=SkipApproval]true"
+              } else {
+                  Write-Host "User is not allowed to skip approval."
+                  Write-Host "##vso[task.setvariable variable=SkipApproval]false"
+              }
+            displayName: 'Check Skip Approval'
+          - script: echo "Deploying to Build..."
+            displayName: 'Deploy to Build'
+- stage: Dev
+  displayName: 'Dev Stage'
   jobs:
-  - job: Test
+  - deployment: Dev
+    displayName: 'Dev Deployment'
+    environment: 'Dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "Deploying to Dev..."
+            displayName: 'Deploy to Dev'
+- stage: Test
+  displayName: 'Test Stage'
+  jobs:
+  - deployment: Test
+    displayName: 'Test Deployment'
+    environment: 'Test'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "Deploying to Test..."
+            displayName: 'Deploy to Test'
+  - job: Test_Dev_1
+    displayName: 'Regression Tests'
     steps:
-    - script: echo 'Testing...'
-
-# Define more stages and jobs as needed...
-
+    - script: echo "Running regression tests..."
+      displayName: 'Run Regression Tests'
+- stage: Sit
+  displayName: 'Sit Stage'
+  jobs:
+  - deployment: Sit
+    displayName: 'Sit Deployment'
+    environment: 'Sit'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "Deploying to Sit..."
+            displayName: 'Deploy to Sit'
+- stage: pre_prod
+  displayName: 'Pre-Production Stage'
+  jobs:
+  - deployment: pre_prod_Deployment
+    displayName: 'pre_prod Deployment'
+    environment: 'pre_prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "Deploying to pre_prod..."
+            displayName: 'Deploy to pre_prod'
+- stage: Production
+  displayName: 'Production Stage'
+  jobs:
+  - deployment: Prod_Deployment
+    displayName: 'Production Deployment'
+    environment: 'Production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "Deploying to Production..."
+            displayName: 'Deploy to Production'
